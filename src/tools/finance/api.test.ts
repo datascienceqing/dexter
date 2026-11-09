@@ -8,6 +8,7 @@ import { api } from './api.js';
 // ---------------------------------------------------------------------------
 
 const originalFetch = globalThis.fetch;
+const originalFdKey = process.env.FINANCIAL_DATASETS_API_KEY;
 let requestedUrls: string[] = [];
 let responses: Record<string, unknown>[] = [];
 
@@ -21,6 +22,8 @@ function jsonResponse(body: Record<string, unknown>): Response {
 beforeEach(() => {
   requestedUrls = [];
   responses = [];
+  // Pin routing to Financial Datasets even if a local .env only sets FMP_API_KEY.
+  process.env.FINANCIAL_DATASETS_API_KEY = 'test-key';
   globalThis.fetch = (async (url: string | URL | Request) => {
     requestedUrls.push(String(url));
     const body = responses.shift();
@@ -33,6 +36,8 @@ beforeEach(() => {
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  if (originalFdKey === undefined) delete process.env.FINANCIAL_DATASETS_API_KEY;
+  else process.env.FINANCIAL_DATASETS_API_KEY = originalFdKey;
 });
 
 describe('api.get pagination', () => {

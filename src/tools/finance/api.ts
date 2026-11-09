@@ -1,5 +1,6 @@
 import { readCache, writeCache, describeRequest } from '../../utils/cache.js';
 import { logger } from '../../utils/logger.js';
+import { shouldUseFmp, fmpGet } from './fmp.js';
 
 const BASE_URL = 'https://api.financialdatasets.ai';
 
@@ -119,6 +120,11 @@ export const api = {
     params: Record<string, string | number | string[] | undefined>,
     options?: { cacheable?: boolean; ttlMs?: number },
   ): Promise<ApiResponse> {
+    // Without a Financial Datasets key, serve supported endpoints from FMP instead.
+    if (shouldUseFmp()) {
+      return fmpGet(endpoint, params, options);
+    }
+
     const label = describeRequest(endpoint, params);
 
     // Check local cache first — avoids redundant network calls for immutable data
@@ -167,6 +173,10 @@ export const api = {
     endpoint: string,
     body: Record<string, unknown>,
   ): Promise<ApiResponse> {
+    if (shouldUseFmp()) {
+      throw new Error(`[FMP API] POST ${endpoint} is not available via Financial Modeling Prep. Set FINANCIAL_DATASETS_API_KEY to use this data.`);
+    }
+
     const label = `POST ${endpoint}`;
     const url = `${BASE_URL}${endpoint}`;
 

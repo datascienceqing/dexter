@@ -98,6 +98,8 @@ cp env.example .env
 
 # Institutional-grade market data for agents
 # FINANCIAL_DATASETS_API_KEY=your-financial-datasets-api-key
+# (Alternative) Financial Modeling Prep, used for prices, statements, ratios and news when no Financial Datasets key is set
+# FMP_API_KEY=your-fmp-api-key
 
 # (Optional) If using Ollama locally
 # OLLAMA_BASE_URL=http://127.0.0.1:11434
